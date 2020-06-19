@@ -155,11 +155,10 @@ filtered out.
   int RoiWidth = boundingBox.roi.width;
   int RoiHeight = boundingBox.roi.height;
 
-  double distance = 0; // We use it to accumulate the sum of euclidian
-  distance
-      // of every match points, then compute the mean of it
-      vector<double>
-          distanceList;
+  double distance = 0;    // Pleaceholder for each matched keypoints distance
+  double distanceAve = 0; // We use it to accumulate the sum of euclidian
+                          // of every match points, then compute the mean of it
+  vector<double> distanceList;
 
   for (auto it = kptMatches.begin(); it != kptMatches.end(); it++) {
     if (kptsCurr[it->trainIdx].pt.x >= RoiX &&
@@ -167,32 +166,36 @@ filtered out.
         kptsCurr[it->trainIdx].pt.y >= RoiY &&
         kptsCurr[it->trainIdx].pt.y <= (RoiY + RoiHeight)) {
       boundingBox.kptMatches.push_back(*it);
-      distance += sqrt(
+      distance = sqrt(
           pow(((kptsCurr[it->trainIdx].pt.x - kptsPrev[it->queryIdx].pt.x) *
                1.0),
               2.0) +
           pow(((kptsCurr[it->trainIdx].pt.y - kptsPrev[it->queryIdx].pt.y) *
                1.0),
               2.0));
+      distanceAve += distance;
       distanceList.push_back(distance);
     }
   }
 
-  distance /= (boundingBox.kptMatches.size() * 1.0);
+  distanceAve /= (boundingBox.kptMatches.size() * 1.0);
   double maxDistance = distance * maxToleranceRatio;
   double minDistance = distance * minToleranceRatio;
-  size_t i = 0; // we use i to iterate distanceList, while using iterator it
-  to
-      // iterate kptMatches.
-      for (auto it = boundingBox.kptMatches.begin();
-           it != boundingBox.kptMatches.end(); i++) {
+  size_t i = 0; // we use i to iterate distanceList, while using iterator it to
+                // iterate kptMatches.
+  for (auto it = boundingBox.kptMatches.begin();
+       it != boundingBox.kptMatches.end(); i++) {
     if (distanceList[i] < minDistance || distanceList[i] > maxDistance) {
       it = boundingBox.kptMatches.erase(it);
     } else {
+      boundingBox.keypoints.push_back(kptsCurr[it->trainIdx]);
       it++;
     }
   }
+  std::cout << "There are " << boundingBox.kptMatches.size()
+            << " matched key points in the Region of Interest." << std::endl;
 }
+
 
 // Compute time-to-collision (TTC) based on keypoint correspondences in
 // successive images
