@@ -27,6 +27,13 @@ In this final project, you will implement the missing parts in the schematic. To
   * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
   * Windows: recommend using [MinGW](http://www.mingw.org/)
 
+## Please download the pre-trained following weight file to [**dat/yolo**](./dat/yolo)
+
+* [Yolov3](https://pjreddie.com/media/files/yolov3.weights)<br>
+* Because this project contains object detection using Yolo, please download the weight file (over 200mb). Otherwise, the executable can't find weight to load in the Neural Network.<br>
+* After you downloaded the file, copy or move it inside [**dat/yolo**](./dat/yolo).
+* Follow the build procedure, or you can build first, but make sure you have the **yolov3.weights in dat/yolo** before run the executable. 
+
 ## Basic Build Instructions
 
 1. Clone this repo.
