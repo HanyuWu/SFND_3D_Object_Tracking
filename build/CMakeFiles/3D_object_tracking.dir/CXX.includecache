@@ -54,6 +54,22 @@ opencv2/core.hpp
 dataStructures.h
 /home/han/mygit/SFND_3D_Object_Tracking/src/dataStructures.h
 
+/home/han/mygit/SFND_3D_Object_Tracking/src/camFusion_Student.cpp
+algorithm
+-
+iostream
+-
+numeric
+-
+opencv2/highgui/highgui.hpp
+-
+opencv2/imgproc/imgproc.hpp
+-
+camFusion.hpp
+/home/han/mygit/SFND_3D_Object_Tracking/src/camFusion.hpp
+dataStructures.h
+/home/han/mygit/SFND_3D_Object_Tracking/src/dataStructures.h
+
 /home/han/mygit/SFND_3D_Object_Tracking/src/dataStructures.h
 vector
 -
@@ -101,14 +117,6 @@ opencv2/xfeatures2d/nonfree.hpp
 -
 dataStructures.h
 /home/han/mygit/SFND_3D_Object_Tracking/src/dataStructures.h
-
-/home/han/mygit/SFND_3D_Object_Tracking/src/matching2D_Student.cpp
-numeric
--
-iostream
--
-matching2D.hpp
-/home/han/mygit/SFND_3D_Object_Tracking/src/matching2D.hpp
 
 /home/han/mygit/SFND_3D_Object_Tracking/src/objectDetection2D.hpp
 stdio.h

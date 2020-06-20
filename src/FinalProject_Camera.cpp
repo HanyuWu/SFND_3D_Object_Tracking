@@ -133,6 +133,7 @@ int main(int argc, const char *argv[]) {
   double t(0);
   /* MAIN LOOP OVER ALL IMAGES */
 
+  /* For logging Camera-based estimated TTC infomation
   string outputFileName = "../output/CameraTTC.csv";
   ifstream infile(outputFileName);
   ofstream outfile;
@@ -148,7 +149,7 @@ int main(int argc, const char *argv[]) {
             << "camera-based estimated TTC(s)" << endl;
   }
   infile.close();
-  // outfile.close()
+  */
 
   for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex;
        imgIndex += imgStepWidth) {
@@ -168,7 +169,7 @@ int main(int argc, const char *argv[]) {
     frame.cameraImg = img;
     dataBuffer.push_back(frame);
 
-    cout << "#1 : LOAD IMAGE INTO BUFFER done" + imgNumber.str() << endl;
+    cout << "#1 : LOAD IMAGE INTO BUFFER done" << endl;
 
     /* DETECT & CLASSIFY OBJECTS */
 
@@ -292,7 +293,7 @@ int main(int argc, const char *argv[]) {
                        (dataBuffer.end() - 1)->keypoints,
                        (dataBuffer.end() - 2)->descriptors,
                        (dataBuffer.end() - 1)->descriptors, matches,
-                       descriptorType, matcherType, selectorType);
+                       descriptorDataType, matcherType, selectorType);
 
       // store matches in current data frame
       (dataBuffer.end() - 1)->kptMatches = matches;
@@ -367,8 +368,9 @@ int main(int argc, const char *argv[]) {
                            currBB->kptMatches, sensorFrameRate, ttcCamera);
           //// EOF STUDENT ASSIGNMENT
 
-          outfile << detectorType << "," << descriptorType << ", " << ttcCamera
-                  << endl;
+          // For my own purpose to log down the info.
+          // outfile << detectorType << "," << descriptorType << ", " <<
+          // ttcCamera << endl; 
 
           bVis = true;
           if (bVis) {
@@ -399,7 +401,8 @@ int main(int argc, const char *argv[]) {
     }
 
   } // eof loop over all images
-  outfile << endl;
-  outfile.close();
+  
+  // outfile << endl;
+  // outfile.close();
   return 0;
 }
