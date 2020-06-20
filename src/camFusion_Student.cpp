@@ -166,13 +166,8 @@ filtered out.
         kptsCurr[it->trainIdx].pt.y >= RoiY &&
         kptsCurr[it->trainIdx].pt.y <= (RoiY + RoiHeight)) {
       boundingBox.kptMatches.push_back(*it);
-      distance = sqrt(
-          pow(((kptsCurr[it->trainIdx].pt.x - kptsPrev[it->queryIdx].pt.x) *
-               1.0),
-              2.0) +
-          pow(((kptsCurr[it->trainIdx].pt.y - kptsPrev[it->queryIdx].pt.y) *
-               1.0),
-              2.0));
+      distance =
+          cv::norm((kptsCurr[it->trainIdx].pt - kptsPrev[it->queryIdx].pt));
       distanceAve += distance;
       distanceList.push_back(distance);
     }
@@ -196,14 +191,76 @@ filtered out.
             << " matched key points in the Region of Interest." << std::endl;
 }
 
-
 // Compute time-to-collision (TTC) based on keypoint correspondences in
 // successive images
 void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev,
                       std::vector<cv::KeyPoint> &kptsCurr,
                       std::vector<cv::DMatch> kptMatches, double frameRate,
                       double &TTC, cv::Mat *visImg) {
-  // ...
+
+  vector<double> distRatios; // stores the distance ratios for all keypoints
+                             // between curr. and prev. frame
+  for (auto it1 = kptMatches.begin(); it1 != kptMatches.end() - 1;
+       ++it1) { // outer kpt. loop get current keypoint and its matched
+                // partner　in the prev. frame
+    cv::KeyPoint kpOuterCurr = kptsCurr.at(it1->trainIdx);
+    cv::KeyPoint kpOuterPrev = kptsPrev.at(it1->queryIdx);
+
+    for (auto it2 = it1 + 1; it2 != kptMatches.end();
+         ++it2) { // inner kpt.-loop
+
+      double minDist = 100.0; // min. required distance
+
+      // get next keypoint and its matched partner in the prev. frame
+      cv::KeyPoint kpInnerCurr = kptsCurr.at(it2->trainIdx);
+      cv::KeyPoint kpInnerPrev = kptsPrev.at(it2->queryIdx);
+
+      // compute distances and distance ratios
+      double distCurr = cv::norm(kpOuterCurr.pt - kpInnerCurr.pt);
+      double distPrev = cv::norm(kpOuterPrev.pt - kpInnerPrev.pt);
+
+      if (distPrev > std::numeric_limits<double>::epsilon() &&
+          distCurr >= minDist) { // avoid division by zero
+
+        double distRatio = distCurr / distPrev;
+        distRatios.push_back(distRatio);
+      }
+    } // eof inner loop over all matched kpts
+  }   // eof outer loop over all matched kpts
+
+  // only continue if list of distance ratios is not empty
+  if (distRatios.size() == 0) {
+    TTC = NAN;
+    return;
+  }
+
+  // compute camera-based TTC from distance ratios
+  // double meanDistRatio = std::accumulate(distRatios.begin(),
+  // distRatios.end(), 0.0) / distRatios.size();
+  std::sort(distRatios.begin(), distRatios.end());
+  double medDistRatio = 0;
+  long medIndex = floor(distRatios.size() / 2.0);
+
+  /*
+  We extract 4 or 5 distratio near the median distratio (even and odd), and compute their mean.
+  To remove outlier influence.
+  */
+
+  if (distRatios.size() < 5) {
+    medDistRatio = accumulate(distRatios.begin(), distRatios.end(), 0.0) /
+                   (double)distRatios.size();
+  } else {
+    medDistRatio = distRatios.size() % 2 == 0
+                       ? (accumulate(distRatios.begin() + medIndex - 2,
+                                     distRatios.begin() + medIndex + 2, 0.0) /
+                          4.0)
+                       : (accumulate(distRatios.begin() + medIndex - 2,
+                                     distRatios.begin() + medIndex + 3, 0.0) /
+                          5.0);
+  } 
+
+  double dT = 1 / frameRate;
+  TTC = -dT / (1 - medDistRatio);
 }
 
 void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
@@ -223,8 +280,8 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
   }
   sort(XPrev.begin(), XPrev.end());
   sort(XCurr.begin(), XCurr.end());
-  minXPrev = accumulate(XPrev.begin(), XPrev.begin() + 5, 0.0) / 5.0;
-  minXCurr = accumulate(XCurr.begin(), XCurr.begin() + 5, 0.0) / 5.0;
+  minXPrev = accumulate(XPrev.begin(), XPrev.begin() + 1, 0.0) / 1.0;   //  based on the last 5 samllest x values.
+  minXCurr = accumulate(XCurr.begin(), XCurr.begin() + 1, 0.0) / 1.0;
   // compute TTC from both measurements
   TTC = minXCurr * dT / (minXPrev - minXCurr);
 }
