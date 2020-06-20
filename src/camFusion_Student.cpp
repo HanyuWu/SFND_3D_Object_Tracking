@@ -280,8 +280,8 @@ void computeTTCLidar(std::vector<LidarPoint> &lidarPointsPrev,
   }
   sort(XPrev.begin(), XPrev.end());
   sort(XCurr.begin(), XCurr.end());
-  minXPrev = accumulate(XPrev.begin(), XPrev.begin() + 1, 0.0) / 1.0;   //  based on the last 5 samllest x values.
-  minXCurr = accumulate(XCurr.begin(), XCurr.begin() + 1, 0.0) / 1.0;
+  minXPrev = accumulate(XPrev.begin(), XPrev.begin() + 5, 0.0) / 5.0;   //  based on the last 5 samllest x values.
+  minXCurr = accumulate(XCurr.begin(), XCurr.begin() + 5, 0.0) / 5.0;
   // compute TTC from both measurements
   TTC = minXCurr * dT / (minXPrev - minXCurr);
 }

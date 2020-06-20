@@ -1,5 +1,5 @@
-Frame No., xmin(m), estimated TTC(s),  Lidar-based TTC(s) (5 points), Lidar-based TTC(s) (1 points), lidar outliners (recognized from topview)
-0, 7.97, 
+Frame No., xmin(m), estimated TTC(s),  Lidar-based TTC(s) (use 5 points), Lidar-based TTC(s) (1 points), lidar outliners (recognized from topview)
+0, 7.97,,,,
 1, 7.91, 13.183, 13.327, 12.972, N
 2, 7.85, 13.083, 11.967, 12.264, N
 3, 7.79, 12.983, 16.462, 13.916, N
